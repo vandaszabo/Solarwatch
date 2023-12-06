@@ -1,0 +1,36 @@
+/* Style for the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* Style for table header cells */
+th {
+    padding: 12px;
+    text-align: left;
+}
+
+/* Style for table body cells */
+td {
+    padding: 10px;
+    border: 1px solid #ddd; 
+}
+
+/* Style for hover effect on rows */
+tbody tr:hover {
+    background-color: lightgrey;
+    color: black;
+}
+
+.admin-container {
+    margin: 0%;
+    height: 70vh;
+    padding: 10px 20%;
+    color: white;
+    justify-content: center;
+    align-items: center;
+}
+button:hover{
+    cursor:pointer;
+}

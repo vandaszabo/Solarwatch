@@ -1,0 +1,37 @@
+.user-container{
+    justify-content: space-around;
+    background-color: rgba(0, 0, 0, 0.736);
+    border-radius: 5px;
+    text-align: center;
+    padding-bottom: 3%;
+}
+.profile{
+    text-align: left;
+    border: 1px solid rgb(63, 63, 63);
+    height: 70vh;
+    padding: 10px 20%;
+}
+
+.admin-link{
+    text-align: center;
+}
+.admin-link button{
+    border-radius: 5px;
+    font-weight: bold;
+}
+.admin-link button:hover{
+    cursor: pointer;
+}
+
+.img-container{
+    border: 1px solid rgb(63, 63, 63);
+    border-radius: 5px;
+    height: 200px;
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.text-container div{
+color: rgb(63, 63, 63);
+}

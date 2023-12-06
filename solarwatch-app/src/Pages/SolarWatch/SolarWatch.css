@@ -1,0 +1,40 @@
+.sunrise-sunset{
+    display: flex;
+    justify-content: space-around; 
+}
+
+.time{
+    padding:0% 10%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.solarData h2 {
+    text-transform: capitalize;
+}
+
+.solarData {
+    justify-content: space-around;
+    background-color: rgba(0, 0, 0, 0.736);
+    border-radius: 5px;
+    text-align: center;
+    padding-bottom: 3%;
+}
+.solar-watch input {
+    margin: 5px;
+    height: 4vh;
+}
+
+.solar-watch button {
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(to right, #E56059, #FAD5AA);
+}
+
+.solar-watch button:hover {
+    color: black;
+    cursor: pointer;
+}

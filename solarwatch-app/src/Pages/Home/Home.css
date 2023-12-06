@@ -1,0 +1,28 @@
+.home-container {
+    background-image: url('../../pictures/sunset_north.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0;
+    height: 70vh;
+    padding: 10px 20%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: rgb(31, 30, 30);
+    color: white;
+}
+
+h1 {
+    margin: 0%;
+    padding-top: 20vh;
+    font-size: 36px;
+    letter-spacing: -0.015em;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}

@@ -1,0 +1,46 @@
+.auth-panel {
+  background-image: url('../../pictures/sunset_north.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 0%;
+  height: 70vh;
+  padding: 10px 20%;
+  color: white;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  border: none;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.UserForm button:hover {
+  background-color: rgba(0, 0, 0, 0.736);
+  color: white;
+  cursor: pointer;
+}
+
+.UserForm {
+  padding:2%;
+  text-align:right;
+  width: 30vw;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.736);
+  border-radius: 5px;
+}
+
+.registerBtn button {
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #E56059, #FAD5AA);
+}
+
+.registerBtn button:hover {
+  color: black;
+  cursor: pointer;
+}
