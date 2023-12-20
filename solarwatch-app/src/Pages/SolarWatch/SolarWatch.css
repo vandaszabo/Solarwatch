@@ -13,7 +13,17 @@
 .solarData h2 {
     text-transform: capitalize;
 }
+.resultHistoryForm{
+    text-align: center;
+    border: 1px solid #332165;
+    background-color: #6c59e52b;
+    border-radius: 5px;
+    margin: 10px;
+}
 
+.searchCards{
+    display: flex;
+}
 .solarData {
     justify-content: space-around;
     background-color: rgba(0, 0, 0, 0.736);
