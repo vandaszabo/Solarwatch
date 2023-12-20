@@ -34,6 +34,7 @@ const SolarWatch = () => {
             });
 
             const data = await response.json();
+            console.log("response data: ",data);
             setResponseState(data);
 
         } catch (error) {
@@ -86,10 +87,10 @@ const SolarWatch = () => {
                 <div>
                     <div className='solarData'>
                         <ResultForm
-                            cityName={cityName}
-                            date={responseState.date}
-                            sunrise={responseState.sunrise}
-                            sunset={responseState.sunset}
+                            cityName={responseState.cityName}
+                            date={responseState.solarWatch.date}
+                            sunrise={responseState.solarWatch.sunrise}
+                            sunset={responseState.solarWatch.sunset}
                         />
                         {isBack ? (
                             <SearchForm

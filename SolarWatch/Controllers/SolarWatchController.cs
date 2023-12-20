@@ -62,7 +62,9 @@ namespace SolarWatch.Controllers
                     return NotFound("No solar watch data found for the provided city.");
                 }
 
-                return Ok(solarWatch);
+                var response = new SolarWatchResponse(city.Name, solarWatch);
+
+                return Ok(response);
             }
             catch (Exception e)
             {
