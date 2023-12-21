@@ -22,6 +22,9 @@ Before you begin, ensure you have the following installed:
    - Run the following commands to update your database:
        dotnet ef database update --context UsersContext
        dotnet ef database update --context SolarWatchContext
+     
+### Start the application
+
 3. **Running the Project**
    - Start the backend server by running the following command:
        dotnet run
