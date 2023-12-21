@@ -16,20 +16,20 @@ Before you begin, ensure you have the following installed:
    - Open a terminal or command prompt.
    - Navigate to the project's backend directory. (SolarWatch)
    - Run the following commands to create migrations for the UsersContext and SolarWatchContext:
-       dotnet ef migrations add InitialCreate --context UsersContext
-       dotnet ef migrations add InitialCreate --context SolarWatchContext
+       - dotnet ef migrations add InitialCreate --context UsersContext
+       - dotnet ef migrations add InitialCreate --context SolarWatchContext
 2. **Apply the migrations to update the databases:**
    - Run the following commands to update your database:
-       dotnet ef database update --context UsersContext
-       dotnet ef database update --context SolarWatchContext
+       - dotnet ef database update --context UsersContext
+       - dotnet ef database update --context SolarWatchContext
      
 ### Start the application
 
 3. **Running the Project**
    - Start the backend server by running the following command:
-       dotnet run
+       - dotnet run
    - Open a new terminal or command prompt.
    - Navigate to the project's frontend directory. (solarwatch-app)
    - Start the frontend application:
-       npm start
+       - npm start
 
