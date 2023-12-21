@@ -33,7 +33,7 @@ const formattedSunrise = formatTime(sunriseDate);
 const formattedSunset = formatTime(sunsetDate);
 
     return (
-        <>
+        <div className='solarData'>
             <h2>{cityName}</h2>
 
             <div>Today</div>
@@ -57,7 +57,7 @@ const formattedSunset = formatTime(sunsetDate);
                     <h3>{formattedSunset}</h3>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
