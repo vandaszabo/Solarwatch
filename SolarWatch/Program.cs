@@ -16,11 +16,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        var configuration = builder.Configuration;
-        var connectionString = configuration["ConnectionString"];
-
-// builder.Configuration.AddUserSecrets<SolarWatch.Models.SolarWatch>();
+        
+        var connectionString = Environment.GetEnvironmentVariable("ASPNETCORE_CONNECTIONSTRING");
+        
 
         AddServices();
         ConfigureSwagger();
@@ -30,14 +28,15 @@ public class Program
 
         var app = builder.Build();
 
-//Adding all roles to AspNetRoles
-        AddRoles();
-
-//Add admin if not exists
-        AddAdmin();
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
+        {
+            AddRoles();
+            AddAdmin();
+        }
 
 //Migrate InventoryManagementDBContext
         DbMigration();
+
 
 // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -68,7 +67,10 @@ public class Program
             using (var scope = app.Services.CreateScope())
             {
                 var dataContext = scope.ServiceProvider.GetRequiredService<SolarWatchContext>();
-                dataContext.Database.Migrate();
+                if (dataContext.Database.IsRelational())
+                {
+                    dataContext.Database.Migrate();
+                }
             }
         }
 
@@ -128,8 +130,29 @@ public class Program
 //Add DbContext
         void AddDbContext()
         {
-            builder.Services.AddDbContext<SolarWatchContext>(options => { options.UseSqlServer(connectionString); });
-            builder.Services.AddDbContext<UsersContext>(options => { options.UseSqlServer(connectionString); });
+            builder.Services.AddDbContext<SolarWatchContext>(options =>
+            {
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+                {
+                    options.UseInMemoryDatabase("SolarWatchTestDb");
+                }
+                else
+                {
+                    options.UseSqlServer(connectionString);
+                }
+            });
+
+            builder.Services.AddDbContext<UsersContext>(options =>
+            {
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+                {
+                    options.UseInMemoryDatabase("UsersTestDb");
+                }
+                else
+                {
+                    options.UseSqlServer(connectionString);
+                }
+            });
         }
 
 //Add authentication
@@ -147,9 +170,9 @@ public class Program
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = configuration["ValidIssuer"],
-                        ValidAudience = configuration["ValidAudience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["IssuerSigningKey"] ??
+                        ValidIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_VALIDISSUER"),
+                        ValidAudience = Environment.GetEnvironmentVariable("ASPNETCORE_VALIDAUDIENCE"),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ASPNETCORE_ISSUERSIGNINGKEY") ??
                             throw new InvalidOperationException()))
                     };
                 });

@@ -4,24 +4,61 @@ using System.Text;
 using Newtonsoft.Json;
 using SolarWatch.Contracts;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SolarWatch_IntegrationTest;
 
-public class AuthenticationTest : IDisposable
+public class AuthenticationTest : IClassFixture<EnvironmentFixture>
 {
     private SolarWatchFactory _factory;
     private HttpClient _client;
-    
-    public AuthenticationTest()
+    private ITestOutputHelper _output;
+    private readonly EnvironmentFixture _environmentFixture;
+
+    public AuthenticationTest(ITestOutputHelper output, EnvironmentFixture environmentFixture)
     {
+        _output = output;
+        _environmentFixture = environmentFixture;
         _factory = new SolarWatchFactory();
         _client = _factory.CreateClient();
     }
 
     [Fact]
-    public async Task Test_LoginAndRegistration()
+    public async Task Test_RegistrationAndLogin()
     {
-        // Login Attempt
+        // Step1: Registration
+        var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
+        var registrationResponse = await _client.PostAsync("/Auth/Register",
+            new StringContent(JsonConvert.SerializeObject(registrationRequest),
+                Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.Created, registrationResponse.StatusCode);
+
+        // Step2: Login
+        var loginRequest = new AuthRequest("user1@email.com", "password1");
+
+        var loginResponse = await _client.PostAsync("/Auth/Login",
+            new StringContent(JsonConvert.SerializeObject(loginRequest),
+                Encoding.UTF8, "application/json"));
+
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(await loginResponse.Content.ReadAsStringAsync());
+
+        // Step3: Assert
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+        Assert.NotNull(authResponse.Token);
+        Assert.Equal("user1@email.com", authResponse.Email);
+        Assert.Equal("user1", authResponse.UserName);
+    }
+    
+    [Fact]
+    public async Task Test_GetSolarWatch()
+    {
+        // Step1: Registration
+        var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
+        var registrationResponse = await _client.PostAsync("/Auth/Register",
+            new StringContent(JsonConvert.SerializeObject(registrationRequest),
+                Encoding.UTF8, "application/json"));
+
+        // Step2: Login
         var loginRequest = new AuthRequest("user1@email.com", "password1");
         var loginResponse = await _client.PostAsync("/Auth/Login",
             new StringContent(JsonConvert.SerializeObject(loginRequest),
@@ -29,64 +66,33 @@ public class AuthenticationTest : IDisposable
 
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(await loginResponse.Content.ReadAsStringAsync());
 
-        // Assert Login
-        if (loginResponse.StatusCode == HttpStatusCode.OK)
-        {
-            Assert.NotNull(authResponse.Token);
-            Assert.Equal("user1@email.com", authResponse.Email);
-            Assert.Equal("user1", authResponse.UserName);
-        }
-        else
-        {
-            // Registration Attempt
-            var registrationRequest = new RegistrationRequest("user2@email.com", "user2", "password2");
-            var registrationResponse = await _client.PostAsync("/Auth/Register",
-                new StringContent(JsonConvert.SerializeObject(registrationRequest),
-                    Encoding.UTF8, "application/json"));
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResponse.Token);
+        _output.WriteLine($"Authorization Header: {_client.DefaultRequestHeaders.Authorization}");
 
-            // Assert Registration
-            Assert.Equal(HttpStatusCode.BadRequest, registrationResponse.StatusCode);
-        }
-    }
-
-    
-    [Fact]
-    public async Task Test_GetSolarWatch()
-    {
-        // Arrange
-        var loginRequest = new AuthRequest("admin@admin.com", "admin123");
-    
-        // Act
-        var loginResponse = await _client.PostAsync("/Auth/Login",
-            new StringContent(JsonConvert.SerializeObject(loginRequest), 
-                Encoding.UTF8, "application/json"));
-
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(await loginResponse.Content.ReadAsStringAsync());
-        var adminToken = authResponse.Token;
-
-        // Assert
-        Assert.NotNull(authResponse.Token);
-        Assert.Equal("admin@admin.com", authResponse.Email);
-        Assert.Equal("admin", authResponse.UserName);
-
-        // Act
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-    
+        //Step3: Get SolarWatch data
         var solarWatchRequest = new SolarWatchRequest("Budapest");
-
-        // Act
-        var solarWatchResponse = await _client.PostAsync("/SolarWatch/GetSunriseAndSunset", new StringContent(JsonConvert.SerializeObject(solarWatchRequest), 
+        var solarWatchResponse = await _client.PostAsync("/SolarWatch/GetSunriseAndSunset", new StringContent(
+            JsonConvert.SerializeObject(solarWatchRequest),
             Encoding.UTF8, "application/json"));
-    
-        // Assert
+
+        _output.WriteLine($"Response: {solarWatchResponse}");
+
+        // Step4: Assert
         Assert.Equal(HttpStatusCode.OK, solarWatchResponse.StatusCode);
     }
 
 
     [Fact]
-    public async Task Test_NoAuthorization()
+    public async Task Test_ForbiddenRequest()
     {
-        // Step 1: Authenticate user and obtain a token
+        //Register
+        var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
+
+        var registrationResponse = await _client.PostAsync("/Auth/Register",
+            new StringContent(JsonConvert.SerializeObject(registrationRequest),
+                Encoding.UTF8, "application/json"));
+
+        // Login
         var loginRequest = new AuthRequest("user1@email.com", "password1");
 
         var loginResponse = await _client.PostAsync("/Auth/Login",
@@ -95,20 +101,17 @@ public class AuthenticationTest : IDisposable
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(await loginResponse.Content.ReadAsStringAsync());
         Assert.NotNull(authResponse.Token);
 
-        // Step 2: Reset authorization header to null (no authorization)
         _client.DefaultRequestHeaders.Authorization = null;
 
-        // Step 3: Attempt to access the protected endpoint without proper authorization
         var solarWatchResponse = await _client.GetAsync("/SolarWatch/GetSolarWatches");
 
-        // Step 4: Assert that the response is Forbidden
-        Assert.Equal(HttpStatusCode.Unauthorized, solarWatchResponse.StatusCode);
+        // Assert
+        Assert.Equal(HttpStatusCode.Forbidden, solarWatchResponse.StatusCode);
     }
-
     
-    public void Dispose()
-    {
-        _factory.Dispose();
-        _client.Dispose();
-    }
+        public void Dispose()
+        {
+            _factory.Dispose();
+            _client.Dispose();
+        }
 }

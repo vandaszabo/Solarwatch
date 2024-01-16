@@ -12,9 +12,6 @@ public class UsersContext : IdentityDbContext<IdentityUser, IdentityRole, string
     }
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        // It would be a good idea to move the connection string to user secrets
-        options.UseSqlServer("Server=localhost,1433;Database=SolarWatchDb;User Id=sa;Password=YourStrong123@; Encrypt=False;TrustServerCertificate=True;");
-
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
