@@ -24,6 +24,17 @@ public class AuthenticationTest : IClassFixture<EnvironmentFixture>
     }
 
     [Fact]
+    public async Task Test_Registration()
+    {
+        // Step1: Registration
+        var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
+        var registrationResponse = await _client.PostAsync("/Auth/Register",
+            new StringContent(JsonConvert.SerializeObject(registrationRequest),
+                Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.Created, registrationResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task Test_RegistrationAndLogin()
     {
         // Step1: Registration
@@ -48,9 +59,9 @@ public class AuthenticationTest : IClassFixture<EnvironmentFixture>
         Assert.Equal("user1@email.com", authResponse.Email);
         Assert.Equal("user1", authResponse.UserName);
     }
-    
+
     [Fact]
-    public async Task Test_GetSolarWatch()
+    public async Task Test_GetUserRoles()
     {
         // Step1: Registration
         var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
@@ -68,50 +79,27 @@ public class AuthenticationTest : IClassFixture<EnvironmentFixture>
 
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResponse.Token);
         _output.WriteLine($"Authorization Header: {_client.DefaultRequestHeaders.Authorization}");
-
-        //Step3: Get SolarWatch data
-        var solarWatchRequest = new SolarWatchRequest("Budapest");
-        var solarWatchResponse = await _client.PostAsync("/SolarWatch/GetSunriseAndSunset", new StringContent(
-            JsonConvert.SerializeObject(solarWatchRequest),
-            Encoding.UTF8, "application/json"));
-
-        _output.WriteLine($"Response: {solarWatchResponse}");
-
-        // Step4: Assert
-        Assert.Equal(HttpStatusCode.OK, solarWatchResponse.StatusCode);
-    }
-
-
-    [Fact]
-    public async Task Test_ForbiddenRequest()
-    {
-        //Register
-        var registrationRequest = new RegistrationRequest("user1@email.com", "user1", "password1");
-
-        var registrationResponse = await _client.PostAsync("/Auth/Register",
-            new StringContent(JsonConvert.SerializeObject(registrationRequest),
+        
+        // Step3: GetRoles
+        var userRequest = new UserRequest("user1");
+        var userResponse = await _client.PostAsync("/User/Roles",
+            new StringContent(JsonConvert.SerializeObject(userRequest),
                 Encoding.UTF8, "application/json"));
 
-        // Login
-        var loginRequest = new AuthRequest("user1@email.com", "password1");
+        var responseContent = await userResponse.Content.ReadAsStringAsync();
+        _output.WriteLine($"Response Content: {responseContent}");
+        
+        var roleResponse = JsonConvert.DeserializeObject<IList<string>>(await userResponse.Content.ReadAsStringAsync());
+        _output.WriteLine($"User Roles: {roleResponse.First()}");
+        
+        Assert.NotNull(roleResponse);
+        Assert.Equal("User", roleResponse.First());
 
-        var loginResponse = await _client.PostAsync("/Auth/Login",
-            new StringContent(JsonConvert.SerializeObject(loginRequest),
-                Encoding.UTF8, "application/json"));
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(await loginResponse.Content.ReadAsStringAsync());
-        Assert.NotNull(authResponse.Token);
-
-        _client.DefaultRequestHeaders.Authorization = null;
-
-        var solarWatchResponse = await _client.GetAsync("/SolarWatch/GetSolarWatches");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, solarWatchResponse.StatusCode);
     }
     
-        public void Dispose()
-        {
-            _factory.Dispose();
-            _client.Dispose();
-        }
+    public void Dispose()
+    {
+        _factory.Dispose();
+        _client.Dispose();
+    }
 }

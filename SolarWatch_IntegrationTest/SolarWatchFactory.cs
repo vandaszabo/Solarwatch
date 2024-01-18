@@ -16,7 +16,17 @@ namespace SolarWatch_IntegrationTest
 {
     public class SolarWatchFactory : WebApplicationFactory<Program>
     {
-        
+        public SolarWatchContext _solarWatchContext { get; }
+        public ISolarWatchRepository _solarWatchRepository;
+        public ICityRepository _cityRepository;
+
+        public SolarWatchFactory()
+        {
+            _solarWatchContext = new SolarWatchContext(new DbContextOptions<SolarWatchContext>());
+            _solarWatchRepository = new SolarWatchRepository(_solarWatchContext);
+            _cityRepository = new CityRepository(_solarWatchContext);
+
+        }
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);
@@ -24,25 +34,18 @@ namespace SolarWatch_IntegrationTest
             builder.ConfigureTestServices(services =>
             {
                 var userStoreMock = new Mock<IUserStore<IdentityUser>>();
-                
-                // Set up IUserEmailStore<IdentityUser> methods
-                userStoreMock.As<IUserEmailStore<IdentityUser>>()
-                    .Setup(x => x.FindByEmailAsync(It.IsAny<string>(), CancellationToken.None))
-                    .ReturnsAsync((string email, CancellationToken token) =>
-                    {
-                        // Implement the logic to find a user by email
-                        var user = new IdentityUser { Email = email };
-                        return user;
-                    });
-                
-                // Create an instance of FakeUserManager with the mock user store
                 var fakeUserManager = new FakeUserManager(userStoreMock.Object);
 
                 // Register services
+                services.AddDbContext<SolarWatchContext>(options =>
+                {
+                    options.UseInMemoryDatabase("SolarWatchTestDb");
+                });
+                services.AddTransient<ISolarWatchRepository, SolarWatchRepository>();
+                services.AddTransient<ICityRepository, CityRepository>();
+                
                 services.AddTransient<IUserStore<IdentityUser>>(provider => userStoreMock.Object);
                 services.AddSingleton<RoleManager<IdentityRole>, FakeRoleManager>();
-
-             
                 services.AddSingleton<UserManager<IdentityUser>>(fakeUserManager);
             });
             builder.UseEnvironment("Testing");
