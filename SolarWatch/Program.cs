@@ -144,14 +144,7 @@ public class Program
 
             builder.Services.AddDbContext<UsersContext>(options =>
             {
-                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
-                {
-                    options.UseInMemoryDatabase("UsersTestDb");
-                }
-                else
-                {
-                    options.UseSqlServer(connectionString);
-                }
+                options.UseSqlServer(connectionString);
             });
         }
 
