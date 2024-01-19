@@ -5,7 +5,7 @@ A web application for getting sunrise and sunset times by city names.
 
 ### Prerequisites
 
-Get an API Key from the following website: https://openweathermap.org/api/geocoding-api
+Get an API Key from the following website: https://openweathermap.org/api/geocoding-api.
 Set the apikey as Environmental variable named "ASPNETCORE_APIKEY".
 
 Before you begin, ensure you have the following installed:
